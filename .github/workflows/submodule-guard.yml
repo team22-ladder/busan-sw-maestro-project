@@ -52,19 +52,19 @@ jobs:
           if [ "$failed" -ne 0 ]; then
             cat <<'HELP'
 
-How to fix locally:
-  1. Remove the bad index entry:
-       git rm --cached -r projects/teamN-yourteam
-  2. Remove nested git metadata from the copied project:
-       rm -rf projects/teamN-yourteam/.git
-  3. Re-add the actual files:
-       git add projects/teamN-yourteam
-       git commit -m "Fix teamN submission files"
+          How to fix locally:
+            1. Remove the bad index entry:
+                 git rm --cached -r projects/teamN-yourteam
+            2. Remove nested git metadata from the copied project:
+                 rm -rf projects/teamN-yourteam/.git
+            3. Re-add the actual files:
+                 git add projects/teamN-yourteam
+                 git commit -m "Fix teamN submission files"
 
-Prevent it next time by copying with:
-       rsync -av --exclude='.git' /path/to/your-project/ projects/teamN-yourteam/
+          Prevent it next time by copying with:
+                 rsync -av --exclude='.git' /path/to/your-project/ projects/teamN-yourteam/
 
-HELP
+          HELP
             exit 1
           fi
 
