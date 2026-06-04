@@ -5,12 +5,12 @@ TOOL_OPTIONS = ["전자레인지", "가스레인지", "에어프라이어", "오
 
 
 def render():
-    st.title("🧂 Step 2 — 재료 보강")
+    st.title("재료 보강")
     st.markdown("기본 소스와 조리도구, 추가 재료를 선택해주세요.")
     st.markdown("---")
 
     # 소스
-    st.markdown("### 🫙 보유 소스")
+    st.markdown("### 보유 소스")
     st.caption("보유한 소스/양념을 선택하세요.")
     sauce_cols = st.columns(5)
     selected_sauces = []
@@ -23,7 +23,7 @@ def render():
     st.markdown("---")
 
     # 조리도구
-    st.markdown("### 🍳 사용 가능한 조리도구")
+    st.markdown("### 사용 가능한 조리도구")
     st.caption("사용할 수 있는 조리도구를 선택하세요.")
     tool_cols = st.columns(4)
     selected_tools = []
@@ -36,18 +36,19 @@ def render():
     st.markdown("---")
 
     # 추가 재료
-    st.markdown("### ➕ 추가 재료")
+    st.markdown("### 추가 재료")
     st.caption("냉장고 밖에 있는 재료 (ex: 라면 사리, 밥 등)를 추가하세요.")
-    col_input, col_btn = st.columns([5, 1])
-    extra_input = col_input.text_input(
-        "", placeholder="재료명 입력 후 추가 버튼 클릭", label_visibility="collapsed"
-    )
-    if col_btn.button("추가", type="primary"):
-        if extra_input.strip():
-            name = extra_input.strip()
-            if name not in st.session_state.extra_ingredients:
-                st.session_state.extra_ingredients.append(name)
-                st.rerun()
+    with st.form("extra_form", clear_on_submit=True):
+        col_input, col_btn = st.columns([5, 1])
+        extra_input = col_input.text_input(
+            "", placeholder="재료명 입력", label_visibility="collapsed"
+        )
+        extra_submitted = col_btn.form_submit_button("추가", type="primary")
+    if extra_submitted and extra_input.strip():
+        name = extra_input.strip()
+        if name not in st.session_state.extra_ingredients:
+            st.session_state.extra_ingredients.append(name)
+            st.rerun()
 
     if st.session_state.extra_ingredients:
         chip_cols = st.columns(6)
@@ -62,7 +63,7 @@ def render():
     st.markdown("---")
 
     # 최종 재료 미리보기
-    st.markdown("### 📋 최종 재료 목록 미리보기")
+    st.markdown("### 최종 재료 목록")
     all_ingredients = (
         [i["name"] for i in st.session_state.ingredients]
         + st.session_state.sauces
@@ -70,37 +71,44 @@ def render():
     )
 
     if all_ingredients:
-        priority = [i["name"] for i in st.session_state.ingredients if i["checked"]]
-        normal = [i["name"] for i in st.session_state.ingredients if not i["checked"]]
+        required = [i["name"] for i in st.session_state.ingredients if i["status"] == "required"]
+        expiring = [i["name"] for i in st.session_state.ingredients if i["status"] == "expiring"]
+        normal = [i["name"] for i in st.session_state.ingredients if i["status"] == "normal"]
 
-        if priority:
-            st.markdown("**⭐ 우선 재료**")
-            st.markdown(" · ".join(f"`{n}`" for n in priority))
+        if required:
+            st.markdown("**필수 재료**")
+            st.markdown(" · ".join(f"`{n}`" for n in required))
+        if expiring:
+            st.markdown("**유통기한 임박**")
+            st.markdown(" · ".join(f"`{n}`" for n in expiring))
         if normal:
             st.markdown("**재료**")
             st.markdown(" · ".join(f"`{n}`" for n in normal))
         if st.session_state.sauces:
-            st.markdown("**🫙 소스/양념**")
+            st.markdown("**소스/양념**")
             st.markdown(" · ".join(f"`{n}`" for n in st.session_state.sauces))
         if st.session_state.extra_ingredients:
-            st.markdown("**➕ 추가 재료**")
+            st.markdown("**추가 재료**")
             st.markdown(" · ".join(f"`{n}`" for n in st.session_state.extra_ingredients))
         if st.session_state.tools:
-            st.markdown("**🍳 조리도구**")
+            st.markdown("**조리도구**")
             st.markdown(" · ".join(f"`{n}`" for n in st.session_state.tools))
     else:
-        st.warning("재료가 없어요! Step 1에서 먼저 재료를 입력해주세요.")
+        st.warning("재료가 없어요! 재료 입력 단계에서 먼저 재료를 입력해주세요.")
 
     st.markdown("")
-    if st.button("🍳 레시피 생성하기", type="primary", use_container_width=True):
+    col_back, col_next = st.columns([1, 3])
+    if col_back.button("← 이전"):
+        st.session_state.step = 1
+        st.rerun()
+    if col_next.button("레시피 생성하기", type="primary", use_container_width=True):
         if not all_ingredients:
             st.error("재료를 먼저 입력해주세요!")
         else:
             with st.spinner("레시피를 생성하는 중..."):
-                # TODO: AI agent 호출
                 st.session_state.recipes = _mock_recipes()
-            st.success("레시피 생성 완료!")
-            st.info("👈 사이드바에서 Step 3으로 이동하세요!")
+            st.session_state.step = 3
+            st.rerun()
 
 
 def _mock_recipes():
