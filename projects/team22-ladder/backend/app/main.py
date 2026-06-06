@@ -48,4 +48,6 @@ async def ingredient_image(
         }
     )
 
-    return result
+    return {
+    "ingredients": result["final_ingredients"]
+}
