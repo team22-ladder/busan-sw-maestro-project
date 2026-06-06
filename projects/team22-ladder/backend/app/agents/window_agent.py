@@ -105,10 +105,16 @@ def window_agent(state):
         McCormick Garlic
 
         출력 형식:
+        배열만 출력 금지
+        설명 금지
+        Markdown 금지
+        반드시 아래 형식만 출력
 
         {
             "ingredients":[]
         }
+
+        
         """
     ]
 

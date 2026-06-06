@@ -18,9 +18,15 @@ model = genai.GenerativeModel(
 
 def fusion_agent(state):
 
-    global_result = state["global_ingredients"]
+    global_result = state.get(
+    "global_ingredients",
+    []
+)
 
-    window_result = state["window_ingredients"]
+    window_result = state.get(
+        "window_ingredients",
+        []
+    )
 
     response = model.generate_content(
         f"""
@@ -73,7 +79,13 @@ def fusion_agent(state):
         text = text.replace("```", "")
         text = text.strip()
 
-    data = json.loads(text)
+    try:
+        data = json.loads(text)
+    except Exception:
+        print(text)
+        return {
+            "final_ingredients": []
+        }
 
     return {
         "final_ingredients": data["ingredients"]
