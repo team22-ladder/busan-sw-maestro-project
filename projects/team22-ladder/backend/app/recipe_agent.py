@@ -10,6 +10,10 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
 
+from app.logger import get_logger
+
+logger = get_logger("recipe_agent")
+
 
 class RecipeGenerationError(RuntimeError):
     pass
@@ -145,7 +149,7 @@ def _append_envelope_log(envelope: dict[str, Any], message: str) -> None:
     logs = envelope.setdefault("logs", [])
     if isinstance(logs, list):
         logs.append(message)
-    print(f"[recipe_agent] {message}", flush=True)
+    logger.info(message)
 
 
 def _iter_all_recipe_entries(envelope: dict[str, Any]):
@@ -261,6 +265,7 @@ def _route_after_selection(state: RecipeState) -> str:
     has_recipes = bool(state.get("top_recipes")) or any(final.get(cat) for cat in final)
     retry_count = state.get("retry_count", 0)
     if not has_recipes and retry_count < MAX_RETRY:
+        logger.info(f"레시피 없음, 재시도 ({retry_count + 1}/{MAX_RETRY})")
         return "retry"
     return "done"
 
@@ -329,12 +334,14 @@ def _generate_recipe_candidates(state: RecipeState) -> RecipeState:
             )
         ),
     ]
+    logger.info(f"Upstage Solar-pro3 호출 (레시피 후보 생성)")
     response = llm.invoke(messages)
     llm_text = response.content
 
     try:
         _parse_json_object(llm_text)
     except RecipeGenerationError:
+        logger.warning("JSON 파싱 실패, repair LLM 재호출")
         repair_response = llm.invoke(
             [
                 SystemMessage(content=_json_repair_prompt()),
@@ -447,10 +454,12 @@ def _llm_validate_recipes(state: RecipeState) -> RecipeState:
 [{{"name": "레시피명", "verdict": "valid"}}, ...]
 """.strip()
 
+    logger.info(f"Upstage Solar-pro3 호출 (레시피 실현 가능성 검증, {len(all_recipes)}개 대상)")
     try:
         response = llm.invoke([HumanMessage(content=prompt)])
         verdicts = _parse_verdict_list(response.content, all_recipes)
-    except Exception:
+    except Exception as e:
+        logger.error(f"LLM 검증 실패, 원본 candidates 사용: {e}")
         return _append_log({**state, "validated_recipes": candidates}, "LLM 검증 완료")
 
     validated: dict[str, list[dict[str, Any]]] = {cat: [] for cat in candidates}
@@ -522,12 +531,14 @@ def _llm_select_final_recipes(state: RecipeState) -> RecipeState:
 
     retry_count = state.get("retry_count", 0)
 
+    logger.info("Upstage Solar-pro3 호출 (최종 추천 선정)")
     try:
         response = llm.invoke([HumanMessage(content=prompt)])
         selected_names = _parse_json_object(response.content)
         if not isinstance(selected_names, dict):
             raise ValueError("unexpected format")
-    except Exception:
+    except Exception as e:
+        logger.error(f"최종 선정 LLM 실패, validated_recipes 사용: {e}")
         return _append_log({**state, "final_recipes": candidates, "retry_count": retry_count}, "최종 추천 선정 완료")
 
     final: dict[str, list[dict[str, Any]]] = {}
@@ -653,7 +664,7 @@ def _tag_recipe_category(recipe: dict[str, Any], category: str) -> dict[str, Any
 def _append_log(state: RecipeState, message: str) -> RecipeState:
     logs = list(state.get("logs", []))
     logs.append(message)
-    print(f"[recipe_agent] {message}", flush=True)
+    logger.info(message)
     return {**state, "logs": logs}
 
 
