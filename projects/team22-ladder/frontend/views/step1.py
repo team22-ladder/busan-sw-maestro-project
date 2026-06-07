@@ -172,42 +172,35 @@ def _render_ingredient_grid():
                 cfg = STATUS_CONFIG[item["status"]]
                 emoji = get_emoji(item["name"])
                 img_url = fetch_unsplash_image(item["name"])
+                is_req = item["status"] == "required"
+                is_exp = item["status"] == "expiring"
 
                 with st.container(border=True):
-                    if cfg["label"]:
+                    img_col, btn_col = st.columns([2, 3])
+                    with img_col:
+                        if img_url:
+                            st.image(img_url, use_container_width=True)
+                        else:
+                            st.markdown(
+                                f"<div style='text-align:center;font-size:2em;padding:12px 0'>{emoji}</div>",
+                                unsafe_allow_html=True,
+                            )
+                    with btn_col:
                         st.markdown(
-                            f"<div style='text-align:right;font-size:0.72em;color:{cfg['border']};margin-bottom:2px'>{cfg['label']}</div>",
+                            f"<div style='font-weight:700;font-size:0.95rem;margin-bottom:6px'>{item['name']}</div>",
                             unsafe_allow_html=True,
                         )
-
-                    if img_url:
-                        st.image(img_url, use_container_width=True)
-                    else:
-                        st.markdown(
-                            f"<div style='text-align:center;font-size:2em;padding:4px 0'>{emoji}</div>",
-                            unsafe_allow_html=True,
-                        )
-
-                    st.markdown(
-                        f"<div style='text-align:center;font-weight:700;font-size:1.05rem;margin-bottom:8px'>{item['name']}</div>",
-                        unsafe_allow_html=True,
-                    )
-
-                    b1, b2, b3 = st.columns(3)
-                    is_req = item["status"] == "required"
-                    is_exp = item["status"] == "expiring"
-
-                    if b1.button("필수 ✓" if is_req else "필수", key=f"req_{item['name']}", use_container_width=True):
-                        item["status"] = "normal" if is_req else "required"
-                        st.rerun()
-                    if b2.button("임박 ✓" if is_exp else "유통기한임박", key=f"exp_{item['name']}", use_container_width=True):
-                        item["status"] = "normal" if is_exp else "expiring"
-                        st.rerun()
-                    if b3.button("삭제", key=f"del_{item['name']}", use_container_width=True):
-                        st.session_state.ingredients = [
-                            i for i in st.session_state.ingredients if i["name"] != item["name"]
-                        ]
-                        st.rerun()
+                        if st.button("필수 ✓" if is_req else "필수", key=f"req_{item['name']}", use_container_width=True):
+                            item["status"] = "normal" if is_req else "required"
+                            st.rerun()
+                        if st.button("임박 ✓" if is_exp else "유통기한임박", key=f"exp_{item['name']}", use_container_width=True):
+                            item["status"] = "normal" if is_exp else "expiring"
+                            st.rerun()
+                        if st.button("삭제", key=f"del_{item['name']}", use_container_width=True):
+                            st.session_state.ingredients = [
+                                i for i in st.session_state.ingredients if i["name"] != item["name"]
+                            ]
+                            st.rerun()
 
 
 def _add_ingredients(names: list[str]):
