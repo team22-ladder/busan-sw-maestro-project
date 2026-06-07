@@ -1,7 +1,35 @@
 import streamlit as st
 import random
+import os
+import requests as _requests
 from html import escape
 from urllib.parse import quote_plus
+
+
+@st.cache_data(show_spinner=False)
+def fetch_recipe_image(recipe_name: str) -> str | None:
+    key = os.getenv("UNSPLASH_ACCESS_KEY", "")
+    if not key:
+        return None
+    try:
+        res = _requests.get(
+            "https://api.unsplash.com/search/photos",
+            params={
+                "query": recipe_name + " korean food",
+                "per_page": 3,
+                "orientation": "landscape",
+                "content_filter": "high",
+            },
+            headers={"Authorization": f"Client-ID {key}"},
+            timeout=5,
+        )
+        if res.ok:
+            results = res.json().get("results", [])
+            if results:
+                return results[0]["urls"]["regular"]
+    except Exception:
+        return None
+    return None
 
 DIFFICULTY_LABEL = {1: "매우 쉬움", 2: "쉬움", 3: "보통", 4: "어려움", 5: "매우 어려움"}
 
@@ -70,6 +98,8 @@ def render():
             "sauces",
             "tools",
             "extra_ingredients",
+            "custom_sauces",
+            "custom_tools",
             "recipes",
             "candidate_recipes",
             "top_recipes",
@@ -127,6 +157,9 @@ def _render_recipe_card(recipe: dict, owned: set):
         missing = [r for r in ingredients if r not in owned]
 
     with st.container(border=True):
+        img_url = fetch_recipe_image(recipe.get("name", ""))
+        if img_url:
+            st.image(img_url, use_container_width=True)
         st.markdown(f"### {recipe.get('name', '이름 없는 레시피')}")
         st.markdown(
             f"난이도: **{DIFFICULTY_LABEL.get(difficulty, '쉬움')}** &nbsp;|&nbsp; "
@@ -149,9 +182,13 @@ def _render_recipe_card(recipe: dict, owned: set):
 
         steps = recipe.get("steps", [])
         if steps:
-            with st.expander("조리 순서"):
+            with st.expander("📋 조리 순서"):
                 for idx, step in enumerate(steps, start=1):
-                    st.markdown(f"{idx}. {_strip_step_number(str(step))}")
+                    step_text = _strip_step_number(str(step))
+                    st.markdown(f"**{idx}단계**")
+                    st.markdown(step_text)
+                    if idx < len(steps):
+                        st.divider()
 
         youtube_query = recipe.get("youtube_query")
         youtube_video = recipe.get("youtube_video") if isinstance(recipe, dict) else None

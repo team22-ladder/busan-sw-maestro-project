@@ -2,8 +2,8 @@ import streamlit as st
 import os
 import requests
 
-SAUCE_OPTIONS = ["소금", "간장", "식용유", "고추장", "된장", "참기름", "굴소스", "설탕", "식초", "기타"]
-TOOL_OPTIONS = ["전자레인지", "가스레인지", "에어프라이어", "오븐", "냄비", "프라이팬", "기타"]
+SAUCE_OPTIONS = ["소금", "간장", "식용유", "고추장", "된장", "참기름", "굴소스", "설탕", "식초"]
+TOOL_OPTIONS = ["전자레인지", "가스레인지", "에어프라이어", "오븐", "냄비", "프라이팬"]
 
 
 def render():
@@ -18,6 +18,19 @@ def render():
     # 소스
     st.markdown("### 보유 소스")
     st.caption("보유한 소스/양념을 선택하세요.")
+    col_a, col_b, _ = st.columns([1, 1, 5])
+    if col_a.button("모두 선택", key="sauce_all"):
+        st.session_state.sauces = list(SAUCE_OPTIONS)
+        for s in SAUCE_OPTIONS:
+            st.session_state[f"sauce_{s}"] = True
+        st.rerun()
+    if col_b.button("모두 해제", key="sauce_none"):
+        st.session_state.sauces = []
+        st.session_state.custom_sauces = []
+        for s in SAUCE_OPTIONS:
+            st.session_state[f"sauce_{s}"] = False
+        st.rerun()
+
     sauce_cols = st.columns(5)
     selected_sauces = []
     for i, sauce in enumerate(SAUCE_OPTIONS):
@@ -26,11 +39,42 @@ def render():
             selected_sauces.append(sauce)
     st.session_state.sauces = selected_sauces
 
+    with st.form("custom_sauce_form", clear_on_submit=True):
+        col_i, col_b = st.columns([5, 1])
+        val = col_i.text_input("", placeholder="소스/양념 직접 입력", label_visibility="collapsed")
+        if col_b.form_submit_button("추가") and val.strip():
+            name = val.strip()
+            if name not in st.session_state.custom_sauces:
+                st.session_state.custom_sauces.append(name)
+                st.rerun()
+    if st.session_state.custom_sauces:
+        chip_cols = st.columns(6)
+        to_remove = None
+        for i, name in enumerate(st.session_state.custom_sauces):
+            if chip_cols[i % 6].button(f"✕ {name}", key=f"rm_csauce_{name}"):
+                to_remove = name
+        if to_remove:
+            st.session_state.custom_sauces.remove(to_remove)
+            st.rerun()
+
     st.markdown("---")
 
     # 조리도구
     st.markdown("### 사용 가능한 조리도구")
     st.caption("사용할 수 있는 조리도구를 선택하세요.")
+    col_c, col_d, _ = st.columns([1, 1, 5])
+    if col_c.button("모두 선택", key="tool_all"):
+        st.session_state.tools = list(TOOL_OPTIONS)
+        for t in TOOL_OPTIONS:
+            st.session_state[f"tool_{t}"] = True
+        st.rerun()
+    if col_d.button("모두 해제", key="tool_none"):
+        st.session_state.tools = []
+        st.session_state.custom_tools = []
+        for t in TOOL_OPTIONS:
+            st.session_state[f"tool_{t}"] = False
+        st.rerun()
+
     tool_cols = st.columns(4)
     selected_tools = []
     for i, tool in enumerate(TOOL_OPTIONS):
@@ -38,6 +82,24 @@ def render():
         if tool_cols[i % 4].checkbox(tool, value=checked, key=f"tool_{tool}"):
             selected_tools.append(tool)
     st.session_state.tools = selected_tools
+
+    with st.form("custom_tool_form", clear_on_submit=True):
+        col_i, col_b = st.columns([5, 1])
+        val = col_i.text_input("", placeholder="조리도구 직접 입력", label_visibility="collapsed")
+        if col_b.form_submit_button("추가") and val.strip():
+            name = val.strip()
+            if name not in st.session_state.custom_tools:
+                st.session_state.custom_tools.append(name)
+                st.rerun()
+    if st.session_state.custom_tools:
+        chip_cols = st.columns(6)
+        to_remove = None
+        for i, name in enumerate(st.session_state.custom_tools):
+            if chip_cols[i % 6].button(f"✕ {name}", key=f"rm_ctool_{name}"):
+                to_remove = name
+        if to_remove:
+            st.session_state.custom_tools.remove(to_remove)
+            st.rerun()
 
     st.markdown("---")
 
@@ -90,15 +152,17 @@ def render():
         if normal:
             st.markdown("**재료**")
             st.markdown(" · ".join(f"`{n}`" for n in normal))
-        if st.session_state.sauces:
+        effective_sauces = list(st.session_state.sauces) + st.session_state.custom_sauces
+        if effective_sauces:
             st.markdown("**소스/양념**")
-            st.markdown(" · ".join(f"`{n}`" for n in st.session_state.sauces))
+            st.markdown(" · ".join(f"`{n}`" for n in effective_sauces))
         if st.session_state.extra_ingredients:
             st.markdown("**추가 재료**")
             st.markdown(" · ".join(f"`{n}`" for n in st.session_state.extra_ingredients))
-        if st.session_state.tools:
+        effective_tools = list(st.session_state.tools) + st.session_state.custom_tools
+        if effective_tools:
             st.markdown("**조리도구**")
-            st.markdown(" · ".join(f"`{n}`" for n in st.session_state.tools))
+            st.markdown(" · ".join(f"`{n}`" for n in effective_tools))
     else:
         st.warning("재료가 없어요! 재료 입력 단계에서 먼저 재료를 입력해주세요.")
 
@@ -128,8 +192,8 @@ def _generate_recipes():
         "ingredients": [i["name"] for i in st.session_state.ingredients if i["status"] == "normal"],
         "required_ingredients": [i["name"] for i in st.session_state.ingredients if i["status"] == "required"],
         "expiring_ingredients": [i["name"] for i in st.session_state.ingredients if i["status"] == "expiring"],
-        "sauces": st.session_state.sauces,
-        "tools": st.session_state.tools,
+        "sauces": list(st.session_state.sauces) + st.session_state.custom_sauces,
+        "tools": list(st.session_state.tools) + st.session_state.custom_tools,
         "extra_ingredients": st.session_state.extra_ingredients,
     }
     try:
