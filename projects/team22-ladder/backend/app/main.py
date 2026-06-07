@@ -60,7 +60,9 @@ async def ingredient_image(
     "ingredients": result["final_ingredients"]
 }
 
-  
+    return result
+
+
 class RecipeGenerateRequest(BaseModel):
     ingredients: list[str] = Field(default_factory=list)
     required_ingredients: list[str] = Field(default_factory=list)
