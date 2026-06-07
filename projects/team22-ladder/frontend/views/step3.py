@@ -139,7 +139,16 @@ def _render_youtube_area(youtube_query: str | None, youtube_video: dict | None):
 
     if isinstance(youtube_video, dict) and youtube_video.get("thumbnail_url"):
         target_url = youtube_video.get("url") or search_url
-        st.image(youtube_video["thumbnail_url"], use_container_width=True)
+        thumb_url = escape(youtube_video["thumbnail_url"])
+        st.markdown(
+            f"""
+            <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:4px;">
+              <img src="{thumb_url}"
+                   style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;" />
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         title = youtube_video.get("title")
         if title:
             st.caption(title)
