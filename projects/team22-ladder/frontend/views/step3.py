@@ -12,6 +12,7 @@ def render():
 
     recipes = st.session_state.get("recipes", {})
     top_recipes = st.session_state.get("top_recipes", [])
+    candidate_recipes = st.session_state.get("candidate_recipes", {})
     category_meta = st.session_state.get("recipe_category_meta", {})
 
     if not recipes and not top_recipes:
@@ -24,24 +25,39 @@ def render():
     owned |= set(st.session_state.get("sauces", []))
     owned |= set(st.session_state.get("extra_ingredients", []))
 
-    st.markdown("## 이 재료로 만들기 좋은 추천")
-    if top_recipes:
-        _render_recipe_cards(top_recipes, owned, limit=5)
-    else:
-        st.info("추천 레시피가 없어요. 더 많은 재료를 추가해보세요.")
+    tab1, tab2 = st.tabs(["⭐ 최종 추천 레시피", "🍽️ 다양한 레시피"])
 
-    st.markdown("---")
+    with tab1:
+        st.markdown("## 이 재료로 만들기 좋은 추천")
+        if top_recipes:
+            _render_recipe_cards(top_recipes, owned, limit=5)
+        else:
+            st.info("추천 레시피가 없어요. 더 많은 재료를 추가해보세요.")
 
-    st.markdown("## 카테고리별 추천")
-    visible_categories = _get_visible_categories(recipes)
-    if visible_categories:
-        for category in visible_categories:
-            items = recipes.get(category, [])
-            label = category_meta.get(category, {}).get("label", category)
-            st.markdown(f"### {label}")
-            _render_recipe_cards(items, owned, limit=3)
-    else:
-        st.info("표시할 카테고리 추천이 없어요.")
+        st.markdown("---")
+
+        st.markdown("## 카테고리별 추천")
+        visible_categories = _get_visible_categories(recipes)
+        if visible_categories:
+            for category in visible_categories:
+                items = recipes.get(category, [])
+                label = category_meta.get(category, {}).get("label", category)
+                st.markdown(f"### {label}")
+                _render_recipe_cards(items, owned, limit=3)
+        else:
+            st.info("표시할 카테고리 추천이 없어요.")
+
+    with tab2:
+        st.markdown("## 다양한 레시피 후보")
+        available_categories = [k for k, v in candidate_recipes.items() if v]
+        if available_categories:
+            for category in available_categories:
+                items = candidate_recipes.get(category, [])
+                label = category_meta.get(category, {}).get("label", category)
+                st.markdown(f"### {label}")
+                _render_recipe_cards(items, owned, limit=len(items))
+        else:
+            st.info("다양한 레시피 정보가 없어요.")
 
     st.markdown("---")
     col_back, col_reset = st.columns([1, 1])
@@ -55,12 +71,13 @@ def render():
             "tools",
             "extra_ingredients",
             "recipes",
+            "candidate_recipes",
             "top_recipes",
             "recipe_category_meta",
             "recipe_logs",
             "visible_recipe_categories",
         ]:
-            st.session_state[k] = {} if k in ["recipes", "recipe_category_meta"] else []
+            st.session_state[k] = {} if k in ["recipes", "candidate_recipes", "recipe_category_meta"] else []
         st.session_state.step = 0
         st.rerun()
 

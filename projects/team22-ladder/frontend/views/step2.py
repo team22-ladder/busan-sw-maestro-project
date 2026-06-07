@@ -147,11 +147,13 @@ def _store_recipe_response(data):
     if isinstance(data, dict) and "recipes" in data:
         st.session_state.top_recipes = data.get("top_recipes", [])
         st.session_state.recipes = data.get("recipes", {})
+        st.session_state.candidate_recipes = data.get("candidate_recipes", {})
         st.session_state.recipe_category_meta = data.get("category_meta", {})
         st.session_state.recipe_logs = data.get("logs", [])
     else:
         st.session_state.top_recipes = []
         st.session_state.recipes = data or {}
+        st.session_state.candidate_recipes = {}
         st.session_state.recipe_category_meta = {}
         st.session_state.recipe_logs = []
     st.session_state.visible_recipe_categories = []
