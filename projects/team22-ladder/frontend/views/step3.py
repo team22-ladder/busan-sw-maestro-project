@@ -37,7 +37,7 @@ def render():
     st.title("🍳 레시피 추천")
     st.markdown("<hr style='margin:4px 0 20px;border-color:#e5e7eb'>", unsafe_allow_html=True)
 
-    col_back, col_reset = st.columns([1, 1])
+    col_back, col_reset = st.columns([3, 1])
     if col_back.button("← 재료 보강으로"):
         st.session_state.step = 2
         st.rerun()
