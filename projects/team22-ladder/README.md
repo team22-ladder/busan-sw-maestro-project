@@ -1,118 +1,163 @@
-# Busan SW Maestro Project
+# 냉장고털이
 
-SW 마에스트로 최종 프로젝트 제출 저장소입니다.
+> 냉장고 속 재료를 입력하면 보유 재료, 양념, 조리도구를 바탕으로 만들 수 있는 레시피를 추천해주는 AI 기반 레시피 추천 서비스입니다.
 
-이 저장소에 팀별 프로젝트를 제출하면, 코치가 GitHub Issue를 통해 피드백을 드립니다.
+## 프로젝트 소개
 
----
+`냉장고털이`는 집에 있는 재료를 효율적으로 활용하지 못해 음식물 쓰레기가 발생하거나, 매번 무엇을 요리할지 고민하는 문제를 줄이기 위해 만든 서비스입니다.
 
-## 제출 전 꼭 읽어주세요
+사용자는 냉장고 사진 또는 텍스트로 재료를 입력하고, 필수로 사용하고 싶은 재료와 유통기한이 임박한 재료를 표시할 수 있습니다. 이후 보유한 소스, 조리도구, 추가 재료를 선택하면 현재 조건에서 만들기 쉬운 레시피를 확인할 수 있습니다.
 
-### 팀 폴더 네이밍 규칙
+## 주요 기능
 
-팀 폴더명은 아래 형식을 따라주세요. 팀 번호가 앞에 있어야 정렬이 되어 관리가 편합니다!
+### 1. 재료 입력
 
-```
-team{번호}-{팀이름}
-```
+- 냉장고 사진 업로드를 통한 재료 입력 흐름 제공
+- 텍스트 단일 입력 및 여러 재료 일괄 입력 지원
+- 입력된 재료를 카드 형태로 확인
+- 재료별 `필수`, `유통기한 임박`, `삭제` 상태 관리
+- Unsplash API를 활용한 재료 이미지 표시
+- Upstage Solar API를 활용한 한국어 재료명 영어 검색어 변환
 
-| 형식 | 예시 | 비고 |
-|---|---|---|
-| `team{번호}-{팀이름}` | `team1-newscatcher` | 영문 소문자만 사용 |
-| | `team15-budgetbuddy` | 공백, 특수문자, 한글 불가 |
-| | `team42-studybot` | |
+### 2. 재료 보강
 
----
+- 보유 소스 및 양념 선택
+- 사용 가능한 조리도구 선택
+- 냉장고 밖 추가 재료 입력
+- 최종 재료 목록 미리보기
+- 필수 재료, 유통기한 임박 재료, 일반 재료를 구분해 확인
 
-## 프로젝트 제출 방법
+### 3. 레시피 추천
 
-Git이 처음이어도 괜찮습니다! 아래 단계를 차근차근 따라오세요.
+- 입력한 재료를 기준으로 추천 레시피 표시
+- 초보 요리사를 위한 쉬운 레시피 구분
+- 전자레인지로 만들 수 있는 간편 요리 구분
+- 보유 재료와 부족한 재료를 함께 표시
+- 난이도와 예상 조리 시간 제공
 
-### Step 1. 이 저장소를 Fork 하세요
+## 서비스 화면
 
-GitHub 페이지 우측 상단의 **Fork** 버튼을 클릭하면, 자신의 GitHub 계정에 동일한 저장소가 복사됩니다.
 
-> Fork란? 원본 저장소를 내 계정으로 복사하는 것입니다. 원본에 직접 영향을 주지 않으니 안심하세요!
+### 홈 화면
 
-### Step 2. Fork한 저장소를 로컬에 Clone 하세요
+### 재료 입력 화면
 
-```bash
-git clone https://github.com/<내-GitHub-아이디>/busan-sw-maestro-project.git
-cd busan-sw-maestro-project
-```
+### 재료 보강 화면
 
-> `<내-GitHub-아이디>` 부분을 자신의 GitHub 아이디로 바꿔주세요.
+### 레시피 추천 화면
 
-### Step 3. 팀 폴더를 만들고 프로젝트를 넣으세요
 
-> 중요: 프로젝트 폴더 안의 `.git` 디렉터리는 함께 제출하지 마세요. `.git`까지 복사하면 GitHub에서 폴더가 실제 파일이 아니라 submodule/gitlink처럼 등록되어 머지 후 파일이 보이지 않을 수 있습니다.
+## 기술 스택
 
-권장 복사 방법:
-
-```bash
-# 팀 폴더 생성 (팀 번호와 이름을 자신의 것으로 변경하세요)
-mkdir -p projects/team1-myteamname
-
-# 내부 .git 메타데이터를 제외하고 프로젝트 파일 복사
-rsync -av --exclude='.git' /path/to/your-project/ projects/team1-myteamname/
-```
-
-완료되면 아래와 같은 구조가 됩니다:
-
-```
-busan-sw-maestro-project/
-└── projects/
-    └── team1-myteamname/
-        ├── README.md        ← 프로젝트 설명
-        ├── backend/         ← 백엔드 코드
-        ├── frontend/        ← 프론트엔드 코드
-        └── ...
-```
-
-> 프로젝트 폴더 안에 **README.md**를 꼭 포함해주세요! 프로젝트 소개, 실행 방법, 기술 스택 등을 적어주시면 피드백에 큰 도움이 됩니다.
-
-### Step 4. Commit & Push 하세요
-
-```bash
-git add .
-git commit -m "[Team 1] 프로젝트 제출 - myteamname"
-git push origin main
-```
-
-### Step 5. Pull Request를 만드세요
-
-1. GitHub에서 **자신의 Fork 저장소**로 이동합니다.
-2. 상단에 나타나는 **"Contribute"** 버튼 → **"Open pull request"** 를 클릭합니다.
-3. PR 제목을 아래 형식으로 작성합니다:
-   ```
-   [Team N] 프로젝트 제출 - 팀이름
-   ```
-4. **Create pull request** 클릭하면 제출 완료!
-
-> PR이 생성되면 코치가 확인 후 머지합니다. 머지 전까지 수정이 필요하면 같은 브랜치에 추가 커밋하시면 자동으로 PR에 반영됩니다.
-
----
-
-## 피드백 확인 방법
-
-코치의 피드백은 이 저장소의 **[Issues](../../issues)** 탭에서 확인할 수 있습니다.
-
-자신의 팀 피드백을 빠르게 찾으려면 라벨(`Team 1`, `Team 2`, ...)로 필터링하세요.
-
----
-
-## 주의사항
-
-| | 규칙 |
+| 영역 | 기술 |
 |---|---|
-| 1 | **자신의 팀 폴더에만 작업하세요.** 다른 팀의 폴더를 수정하면 안 됩니다. |
-| 2 | **반드시 Pull Request를 통해 제출하세요.** 원본 저장소에 직접 push할 수 없습니다. |
-| 3 | **팀 폴더 네이밍 규칙을 지켜주세요.** `team{번호}-{팀이름}` 형식이 아니면 피드백이 어려울 수 있습니다. |
-| 4 | **PR 제출 전에 확인하세요.** 자신의 Fork에서 파일이 올바르게 들어갔는지 꼭 체크해주세요. |
+| Frontend | Streamlit |
+| Backend | FastAPI, Uvicorn |
+| Language | Python |
+| AI/API | Upstage Solar API, OpenAI SDK |
+| Image API | Unsplash API |
+| Environment | python-dotenv |
 
----
+## 프로젝트 구조
 
-## 도움이 필요하면?
+```text
+team22-ladder/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   └── main.py
+│   └── requirements.txt
+├── frontend/
+│   ├── static/
+│   │   └── logo.png
+│   ├── views/
+│   │   ├── home.py
+│   │   ├── step1.py
+│   │   ├── step2.py
+│   │   └── step3.py
+│   ├── app.py
+│   ├── example.env
+│   └── requirements.txt
+└── README.md
+```
 
-- Git/GitHub 사용법이 어려우시면 코치에게 편하게 질문해주세요!
-- 제출 과정에서 문제가 생기면 Issue를 열어주셔도 됩니다.
+## 실행 방법
+
+### 1. Backend 실행
+
+```bash
+cd projects/team22-ladder/backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+Windows 환경에서는 가상환경 활성화 명령어를 아래처럼 사용합니다.
+
+```bash
+.venv\Scripts\activate
+```
+
+Backend 실행 후 아래 주소에서 상태와 API 문서를 확인할 수 있습니다.
+
+- Health Check: http://localhost:8000/health
+- Swagger Docs: http://localhost:8000/docs
+
+### 2. Frontend 실행
+
+새 터미널을 열고 아래 명령어를 실행합니다.
+
+```bash
+cd projects/team22-ladder/frontend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Frontend 실행 후 아래 주소로 접속합니다.
+
+- Streamlit App: http://localhost:8501
+
+## 환경 변수
+
+Frontend에서 외부 API를 사용하려면 `frontend/example.env`를 참고해 `.env` 파일을 생성합니다.
+
+```bash
+cd projects/team22-ladder/frontend
+cp example.env .env
+```
+
+`.env` 파일에 필요한 값을 입력합니다.
+
+```env
+UNSPLASH_ACCESS_KEY=
+UPSTAGE_API_KEY=
+API_URL=http://localhost:8000
+```
+
+| 변수 | 설명 |
+|---|---|
+| `UNSPLASH_ACCESS_KEY` | 재료 이미지를 검색하기 위한 Unsplash Access Key |
+| `UPSTAGE_API_KEY` | 한국어 재료명을 영어 이미지 검색어로 변환하기 위한 Upstage Solar API Key |
+| `API_URL` | FastAPI 백엔드 주소 |
+
+API Key가 없어도 앱 실행은 가능하지만, 재료 이미지는 기본 이모지로 대체되고 재료명 번역 기능은 비활성화됩니다.
+
+## 현재 구현 상태
+
+- Streamlit 기반 3단계 레시피 추천 UI 구현
+- 재료 입력, 상태 표시, 재료 보강, 추천 결과 화면 구현
+- Unsplash 재료 이미지 검색 연동
+- Upstage Solar API 기반 재료명 번역 연동
+- FastAPI 백엔드 기본 서버 및 `/health` 엔드포인트 구현
+
+현재 레시피 추천 결과는 프론트엔드 내부의 샘플 데이터를 기반으로 표시됩니다. 이후 백엔드 API와 AI 추천 로직을 연결해 실제 입력 조건에 맞춘 추천 결과를 생성하도록 확장할 수 있습니다.
+
+## 기대 효과
+
+- 냉장고 속 남은 재료를 빠르게 파악하고 활용 가능
+- 유통기한이 임박한 재료를 우선 사용하는 요리 선택 가능
+- 초보자도 만들기 쉬운 레시피를 확인해 요리 진입 장벽 완화
+- 보유한 조리도구와 양념을 반영해 현실적인 레시피 탐색 가능
