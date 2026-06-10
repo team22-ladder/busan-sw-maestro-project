@@ -50,12 +50,10 @@
 <!-- 재료 입력 화면: 냉장고 사진 업로드 영역 -->
 <img width="862" height="814" alt="재료 입력 - 사진 업로드" src="https://github.com/user-attachments/assets/12a4f2b2-6a64-4300-b190-56f52a9c9682" />
 
-#### 재료 분석 결과
-
 <!-- 재료 입력 화면: 사진 분석 후 추출된 재료 카드 목록 -->
 <img width="720" height="812" alt="재료 입력 - 분석 결과" src="https://github.com/user-attachments/assets/33886550-5278-4b15-9ab2-de7331273338" />
 
-#### 직접 입력으로 재료 추가
+#### 재료 분석 결과
 
 <!-- 재료 입력 화면: 텍스트로 단일 재료 또는 여러 재료를 직접 입력 -->
 <img width="600" height="724" alt="재료 입력 - 직접 입력" src="https://github.com/user-attachments/assets/aae1d720-c924-413c-8699-61d07872c2ba" />
@@ -79,15 +77,17 @@
 
 ### 레시피 추천 화면
 
-#### 초보 요리사 추천
+#### 최종 레시피 추천
 
 <!-- 레시피 추천 화면: 보유 재료 기반 초보자용 추천 레시피 -->
 <img width="660" height="810" alt="레시피 추천 - 초보 요리사 추천" src="https://github.com/user-attachments/assets/2d47d066-af31-44ea-89e2-25f9fd20bfac" />
 
-#### 전자레인지 간편 요리
+#### 다양한 레시피 추천
 
 <!-- 레시피 추천 화면: 전자레인지로 만들 수 있는 간편 요리 추천 -->
 <img width="650" height="814" alt="레시피 추천 - 전자레인지 간편 요리" src="https://github.com/user-attachments/assets/ed3ad229-cd9e-453a-b593-f87b9c73d65c" />
+
+
 ## 기술 스택
 
 | 영역 | 기술 |
