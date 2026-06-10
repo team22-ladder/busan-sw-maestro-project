@@ -97,10 +97,23 @@ cd projects/team22-ladder/backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp ../.env.example .env
 uvicorn app.main:app --reload
 ```
 
-Windows 환경에서는 가상환경 활성화 명령어를 아래처럼 사용합니다.
+`.env`에 `UPSTAGE_API_KEY` 값을 직접 입력해야 레시피 생성 Agent가 동작합니다.
+`YOUTUBE_API_KEY`가 있으면 관련 영상 썸네일을 함께 조회하고, 없으면 YouTube 검색 링크만 제공합니다.
+
+**Recipe Agent API 테스트**
+
+```bash
+cd backend
+curl -X POST http://localhost:8000/recipes/generate \
+  -H "Content-Type: application/json" \
+  -d @examples/recipe_request.json
+```
+
+**Frontend** (새 터미널)
 
 ```bash
 .venv\Scripts\activate
@@ -120,6 +133,7 @@ cd projects/team22-ladder/frontend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp example.env .env
 streamlit run app.py
 ```
 
